@@ -1,6 +1,14 @@
-# 🚀 蓝桥杯嵌入式 STM32G4 极速开发模板 (Gemini 终极版)
+# 🚀 蓝桥杯嵌入式 STM32G4 极速开发模板 (BlueBridge-STM32G431-Template)
 
-欢迎来到 **Gemini_Template**！本模板专为蓝桥杯嵌入式（STM32G431）及各类单片机裸机开发量身定制。
+<p align="center">
+  <img src="https://img.shields.io/badge/MCU-STM32G431RBTx-blue" alt="MCU"/>
+  <img src="https://img.shields.io/badge/core-Cortex--M4-orange" alt="Core"/>
+  <img src="https://img.shields.io/badge/IDE-Keil%20MDK--ARM-green" alt="IDE"/>
+  <img src="https://img.shields.io/badge/library-STM32%20HAL-green" alt="Library"/>
+  <img src="https://img.shields.io/badge/language-C-blue" alt="Language"/>
+</p>
+
+欢迎来到 **BlueBridge-STM32G431-Template**！本模板专为蓝桥杯嵌入式（STM32G431）及各类单片机裸机开发量身定制。
 
 无论你是刚学会点亮 LED 想要在考场上快速套用模板的**新手**，还是备战国赛乃至更高级别电赛、追求代码极致优雅和底层掌控力的**老鸟**，这套以**“中心化数据字典 + 纯非阻塞时间片轮询”**为核心的 MVC 架构，都能让你在 5 小时的紧张考场上实现**“降维打击”**。
 
@@ -13,7 +21,7 @@
 本模板将庞杂的代码严格划分为底层驱动、中间件与核心业务层，摒弃所有冗余：
 
 ```plaintext
-GEMINI_TEMPLATE/
+BLUEBRIDGE-STM32G431-TEMPLATE/
 ├── APP/                    # 🌟 标准全功能应用层 (非阻塞驱动与核心调度器)
 │   ├── Inc/                # 头文件 (含 global_system.h, exam_logic.h 等)
 │   └── Src/                # 源文件 (含 exam_logic.c 及各类非阻塞外设驱动)
@@ -120,8 +128,18 @@ if (sys.f_a_cal > sys.para_ph) sys.led_ctrl[1] = 1; // 亮 LD2
 
 ## ⚙️ 编译与工程维护
 
-* **本地开发**：使用 Keil MDK 打开 `MDK-ARM/Gemini_Template.uvprojx` 即可直接编译下载。
+* **本地开发**：使用 Keil MDK 打开 `MDK-ARM/BlueBridge-STM32G431-Template.uvprojx` 即可直接编译下载。
 * **一键瘦身**：在提交代码或归档前，双击运行 `clean.bat`（或执行 `python clean_template.py`），自动清理百兆编译垃圾文件，保持工程极度轻量。
 * **持续集成 (CI)**：内置 `.gitea/workflows/keil-build.yaml`，推送到支持 Actions 的 Git 远端后，可自动触发云端 Keil 编译校验。
 
 祝你在蓝桥杯赛场上，代码一遍过，早日拿国一！🏆
+
+---
+
+## 👤 作者
+
+- **yangcong-bit** · [GitHub](https://github.com/yangcong-bit) · <zys20041022@outlook.com>
+
+## 📄 License
+
+MIT License

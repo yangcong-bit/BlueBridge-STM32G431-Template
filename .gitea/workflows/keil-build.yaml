@@ -16,21 +16,21 @@ jobs:
       - name: 2. Compile via Keil
         run: |
           echo "Start compiling via Keil..."
-          C:\Users\Administrator\AppData\Local\Keil_v5\UV4\UV4.exe -b MDK-ARM\Gemini_Template.uvprojx -j4 -o build_log.txt
+          C:\Users\Administrator\AppData\Local\Keil_v5\UV4\UV4.exe -b MDK-ARM\BlueBridge-STM32G431-Template.uvprojx -j4 -o build_log.txt
           
       - name: 3. Extract Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: STM32_Firmware
           path: |
-            MDK-ARM\Gemini_Template\Gemini_Template.hex
+            MDK-ARM\BlueBridge-STM32G431-Template\BlueBridge-STM32G431-Template.hex
             MDK-ARM\build_log.txt
 
       - name: 4. Publish Package
         shell: powershell
         run: |
-          $HexFilePath = "MDK-ARM\Gemini_Template\Gemini_Template.hex"
-          $FileName = "Gemini_Template.hex"
+          $HexFilePath = "MDK-ARM\BlueBridge-STM32G431-Template\BlueBridge-STM32G431-Template.hex"
+          $FileName = "BlueBridge-STM32G431-Template.hex"
           
           if (-not (Test-Path $HexFilePath)) {
               Write-Error "Build failed or .hex file not found at $HexFilePath!"
