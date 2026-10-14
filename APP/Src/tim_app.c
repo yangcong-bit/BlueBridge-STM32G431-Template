@@ -1,55 +1,55 @@
 /**
  * @file    tim_app.c
- * @brief   �������ë�̵ĵײ� PWM ˢ������
+ * @brief   防抖与防毛刺的底层 PWM 刷新驱动
  */
 #include "tim_app.h"
-#include "tim.h"           // ���� htim1 ���
-#include "global_system.h" // ����ȫ�������ֵ�
+#include "tim.h"           // 引入 htim1 句柄
+#include "global_system.h" // 引入全局数据字典
 
 /**
- * @brief  [˽��] PWM �ײ�Ĵ���ˢ�º��� (��������ѧ��������ܷ��߼�)
- * @param  freq Ŀ��Ƶ�� (Hz)
- * @param  duty ռ�ձ� (0.0 ~ 1.0)
+ * @brief  [私有] PWM 底层寄存器刷新函数 (含核心数学运算与防跑飞逻辑)
+ * @param  freq 目标频率 (Hz)
+ * @param  duty 占空比 (0.0 ~ 1.0)
  */
 static void PWM_Set_Params(uint32_t freq, float duty) {
-    if (freq == 0) return; // ���㱣��
+    if (freq == 0) return; // 除零保护
     if (duty < 0.0f) duty = 0.0f;
     if (duty > 1.0f) duty = 1.0f;
     
-    // 1. ���ڶ�ʱ��ʱ�� 1MHz �����Զ���װ�ؼĴ���(ARR)�Ͳ���ȽϼĴ���(CCR)
+    // 1. 基于定时器时钟 1MHz 计算自动重装载寄存器(ARR)和捕获比较寄存器(CCR)
     uint32_t arr_value = (1000000 / freq) - 1; 
     uint32_t ccr_value = (uint32_t)((arr_value + 1) * duty);
 
-    // 2. ����ë�̺����߼���
-    // ������Ƶ Bug�����Ƶ��ͻ�䵼���µ� ARR С�ڵ�ǰ������ CNT ��ֵ��
-    // ��ʱ����һֱ������� (0xFFFF) �ŷ�ת������������ٺ�����쳣��ƽ��
+    // 2. 【防毛刺核心逻辑】
+    // 比赛高频 Bug：如果频率突变导致新的 ARR 小于当前计数器 CNT 的值，
+    // 定时器会一直数到溢出 (0xFFFF) 才反转，导致输出几百毫秒的异常电平。
     if (__HAL_TIM_GET_COUNTER(&PWM_TIM_HANDLE) > arr_value) {
         __HAL_TIM_SET_COUNTER(&PWM_TIM_HANDLE, 0); 
     }
-    // 3. д��ײ�Ĵ��� (������Ч)
+    // 3. 写入底层寄存器 (立即生效)
     __HAL_TIM_SET_AUTORELOAD(&PWM_TIM_HANDLE, arr_value);
     __HAL_TIM_SET_COMPARE(&PWM_TIM_HANDLE, PWM_TIM_CHANNEL, ccr_value); 
 }
 
 /**
- * @brief  ��ʱ����ʼ���뿪������ֵ
+ * @brief  定时器初始化与开机赋初值
  */
 void TIM_PWM_Init(void) {
-    // ʹ�ú�����
+    // 使用宏启动
     HAL_TIM_PWM_Start(&PWM_TIM_HANDLE, PWM_TIM_CHANNEL);
-    // ʹ���ֵ��е�Ĭ��ֵ���̳�ʼ��Ӳ�����
+    // 使用字典中的默认值立刻初始化硬件输出
     PWM_Set_Params(sys.pwm_freq, sys.pwm_duty);
 }
 
 /**
- * @brief  PWM ҵ������ͬ������ (������)
- * @note   ����������ڣ�20ms���Ա���ʷ״̬��������ֵ�仯ʱ�����Ĵ�����
+ * @brief  PWM 业务处理与同步任务 (消费者)
+ * @note   建议调度周期：20ms。对比历史状态，仅在数值变化时操作寄存器。
  */
 void TIM_Proc(void) {
     static uint32_t last_freq = 0;
     static float    last_duty = -1.0f;
     
-    // ����ֵ��е�ָ������Ƿ� UI �������߼��޸Ĺ�
+    // 检查字典中的指令参数是否被 UI 或其他逻辑修改过
     if (sys.pwm_freq != last_freq || sys.pwm_duty != last_duty) {
         PWM_Set_Params(sys.pwm_freq, sys.pwm_duty);
         last_freq = sys.pwm_freq;

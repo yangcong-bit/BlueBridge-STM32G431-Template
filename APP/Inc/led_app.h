@@ -1,7 +1,7 @@
 /**
  * @file    led_app.h
- * @brief   LED ����ģ�� (״̬��ӳ��������ʱ������)
- * @note    ҵ��ģ�������Ҫ��ƣ���ֱ�Ӳ���ȫ���ֵ䣺sys.led_ctrl[x]��
+ * @brief   LED 控制模块 (状态机映射与软定时防死锁)
+ * @note    业务模块如果需要点灯，请直接操作全局字典：sys.led_ctrl[x]。
  */
 #ifndef __LED_APP_H
 #define __LED_APP_H

@@ -1,7 +1,7 @@
 /**
  * @file    i2c_hal.c
- * @brief   Èí¼ş I2C µ×²ãÄ£ÄâĞ­ÒéÓëĞ¾Æ¬Çı¶¯À©Õ¹
- * @note    ÄÚº¬À¶ÇÅ±­¹Ù·½Çı¶¯£¬ÒÔ¼°×·¼ÓµÄ AT24C02 Á¬Ğø¶ÁĞ´Óë MCP4017 ¿ØÖÆº¯Êı¡£
+ * @brief   è½¯ä»¶ I2C åº•å±‚æ¨¡æ‹Ÿåè®®ä¸èŠ¯ç‰‡é©±åŠ¨æ‰©å±•
+ * @note    å†…å«è“æ¡¥æ¯å®˜æ–¹é©±åŠ¨ï¼Œä»¥åŠè¿½åŠ çš„ AT24C02 è¿ç»­è¯»å†™ä¸ MCP4017 æ§åˆ¶å‡½æ•°ã€‚
  */
 #include "i2c_hal.h"
 
@@ -206,63 +206,63 @@ void I2CInit(void)
 
 
 /**
- * @brief AT24C02 EEPROM Á¬ĞøĞ´º¯Êı
- * @note  ¡¾¾¯¸æ¡¿¸Ãº¯ÊıÄÚ²¿°üº¬ HAL_Delay(5)£¡
- * ÑÏ½ûÔÚÖ÷Ñ­»·ÖĞÖ±½ÓÊ¹ÓÃËü±£´æ´óÊı¾İ£¬±ØĞëÅäºÏ eeprom_app.c µÄÒì²½ÇĞÆ¬×´Ì¬»úÊ¹ÓÃ¡£
+ * @brief AT24C02 EEPROM è¿ç»­å†™å‡½æ•°
+ * @note  ã€è­¦å‘Šã€‘è¯¥å‡½æ•°å†…éƒ¨åŒ…å« HAL_Delay(5)ï¼
+ * ä¸¥ç¦åœ¨ä¸»å¾ªç¯ä¸­ç›´æ¥ä½¿ç”¨å®ƒä¿å­˜å¤§æ•°æ®ï¼Œå¿…é¡»é…åˆ eeprom_app.c çš„å¼‚æ­¥åˆ‡ç‰‡çŠ¶æ€æœºä½¿ç”¨ã€‚
  */
 void eeprom_write(uint8_t *buf, uint8_t addr, uint8_t num) {
     while(num--) {
         I2CStart();
-        I2CSendByte(0xA0);   // Ğ´Éè±¸µØÖ·
+        I2CSendByte(0xA0);   // å†™è®¾å¤‡åœ°å€
         I2CWaitAck();
-        I2CSendByte(addr++); // ÄÚ´æµØÖ·
+        I2CSendByte(addr++); // å†…å­˜åœ°å€
         I2CWaitAck();
-        I2CSendByte(*buf++); // Êı¾İ×Ö½Ú
+        I2CSendByte(*buf++); // æ•°æ®å­—èŠ‚
         I2CWaitAck();
         I2CStop();
-        HAL_Delay(5); // ÎïÀíÉÕÂ¼ËÀÇøÊ±¼ä
+        HAL_Delay(5); // ç‰©ç†çƒ§å½•æ­»åŒºæ—¶é—´
     }
 }
 
 /**
- * @brief AT24C02 EEPROM Á¬Ğø¶Áº¯Êı
+ * @brief AT24C02 EEPROM è¿ç»­è¯»å‡½æ•°
  */
 void eeprom_read(uint8_t *buf, uint8_t addr, uint8_t num) {
     I2CStart();
-    I2CSendByte(0xA0); // Î±Ğ´¶¨Î»
+    I2CSendByte(0xA0); // ä¼ªå†™å®šä½
     I2CWaitAck();
     I2CSendByte(addr);
     I2CWaitAck();
 
     I2CStart();
-    I2CSendByte(0xA1); // ¶ÁÖ¸Áî
+    I2CSendByte(0xA1); // è¯»æŒ‡ä»¤
     I2CWaitAck();
     while(num--) {
         *buf++ = I2CReceiveByte();
         if(num) {
-            I2CSendAck();    // »¹Ã»¶ÁÍê£¬¸øÓ¦´ğ
+            I2CSendAck();    // è¿˜æ²¡è¯»å®Œï¼Œç»™åº”ç­”
         } else {
-            I2CSendNotAck(); // ×îºóÒ»¸ö×Ö½Ú£¬¸ø·ÇÓ¦´ğ
+            I2CSendNotAck(); // æœ€åä¸€ä¸ªå­—èŠ‚ï¼Œç»™éåº”ç­”
         }
     }
     I2CStop();
 }
 
 /**
- * @brief MCP4017 ¿É±à³ÌÊı×Öµç×èĞ´ÈëµµÎ»
- * @param val: 0 ~ 127 (¶ÔÓ¦ 0 ~ 100k¦¸)
+ * @brief MCP4017 å¯ç¼–ç¨‹æ•°å­—ç”µé˜»å†™å…¥æ¡£ä½
+ * @param val: 0 ~ 127 (å¯¹åº” 0 ~ 100kÎ©)
  */
 void mcp4017_write(uint8_t val) {
     I2CStart();
-    I2CSendByte(0x5E); // MCP4017 Éè±¸µØÖ·
+    I2CSendByte(0x5E); // MCP4017 è®¾å¤‡åœ°å€
     I2CWaitAck();
-    I2CSendByte(val);  // Ğ´ÈëÓÎ±ê²½½øÖµ
+    I2CSendByte(val);  // å†™å…¥æ¸¸æ ‡æ­¥è¿›å€¼
     I2CWaitAck();
     I2CStop();
 }
 
 /**
- * @brief MCP4017 ¶ÁÈ¡µ±Ç°ÓÎ±ê²½½øÖµ
+ * @brief MCP4017 è¯»å–å½“å‰æ¸¸æ ‡æ­¥è¿›å€¼
  */
 uint8_t mcp4017_read(void) {
     uint8_t val;

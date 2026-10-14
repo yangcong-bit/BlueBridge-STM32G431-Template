@@ -150,9 +150,9 @@ typedef __IO uint8_t  vu8;
 typedef uint32_t  u32;
 typedef uint16_t u16;
 typedef uint8_t  u8;
-typedef const uint32_t uc32;  
-typedef const uint16_t uc16;  
-typedef const uint8_t uc8;   
+typedef const uint32_t uc32;
+typedef const uint16_t uc16;
+typedef const uint8_t uc8;
 
 void LCD_Init(void);
 void LCD_SetTextColor(vu16 Color);

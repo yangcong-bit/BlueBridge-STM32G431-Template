@@ -1,25 +1,33 @@
 /**
  * @file    adc_app.c
- * @brief   ADC DMA µ×²ãÇı¶¯ÓëË«ÖØÂË²¨Ëã·¨ÊµÏÖ (Ó²¼şÈ¥¼«Öµ + Èí¼ş»¬¶¯´°¿Ú)
+ * @brief   ADC DMA åº•å±‚é©±åŠ¨ä¸åŒé‡æ»¤æ³¢ç®—æ³•å®ç° (ç¡¬ä»¶å»æå€¼ + è½¯ä»¶æ»‘åŠ¨çª—å£)
  */
 #include "adc_app.h"
-#include "adc.h"           // ÒıÈë hadc1 ºÍ hadc2 Ó²¼ş¾ä±ú
-#include "global_system.h" // ÒıÈëÈ«¾Ö×Öµä£¬ÓÃÓÚÉÏ±¨×îÖÕµçÑ¹
+#include "adc.h"           // å¼•å…¥ hadc1 å’Œ hadc2 ç¡¬ä»¶å¥æŸ„
+#include "global_system.h" // å¼•å…¥å…¨å±€å­—å…¸ï¼Œç”¨äºä¸ŠæŠ¥æœ€ç»ˆç”µå‹
 
 /* ==========================================
- * Ë½ÓĞÄÚ´æÇø (ÑÏ½ûÍâ²¿ extern)
+ * åº•å±‚ DMA å¥æŸ„å¼•å…¥
+ * @note  CubeMX åªåœ¨ adc.c é‡Œã€å®šä¹‰ã€‘hdma_adc1/hdma_adc2ï¼Œ
+ * adc.h åªå¯¼å‡º hadc1/hadc2ï¼Œå› æ­¤è¿™é‡Œéœ€è¦æŒ‰ uart_app.c çš„åŒæ ·å†™æ³•æ‰‹åŠ¨ externã€‚
  * ========================================== */
-/** * @brief ADC DMA Ë«»º³åµ×²ã½ÓÊÕÊı×é 
- * [0][x] ¶ÔÓ¦ ADC1_IN11 (°åÔØ R38 µçÎ»Æ÷)
- * [1][x] ¶ÔÓ¦ ADC2_IN15 (°åÔØ R37 µçÎ»Æ÷)
+extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_adc2;
+
+/* ==========================================
+ * ç§æœ‰å†…å­˜åŒº (ä¸¥ç¦å¤–éƒ¨ extern)
+ * ========================================== */
+/** * @brief ADC DMA åŒç¼“å†²åº•å±‚æ¥æ”¶æ•°ç»„ 
+ * [0][x] å¯¹åº” ADC1_IN11 (æ¿è½½ R38 ç”µä½å™¨)
+ * [1][x] å¯¹åº” ADC2_IN15 (æ¿è½½ R37 ç”µä½å™¨)
  */
 static uint16_t dma_buff[2][30];
 
-// ¶¨Òå»¬¶¯´°¿Ú²É¼¯´ÎÊı
+// å®šä¹‰æ»‘åŠ¨çª—å£é‡‡é›†æ¬¡æ•°
 #define ADC_SAMPLE_COUNT 5
 
 /**
- * @brief ÄÚ²¿Ë½ÓĞº¯Êı£º»¬¶¯´°¿ÚÈ¥¼«ÖµÖĞÖµÆ½¾ùÂË²¨
+ * @brief å†…éƒ¨ç§æœ‰å‡½æ•°ï¼šæ»‘åŠ¨çª—å£å»æå€¼ä¸­å€¼å¹³å‡æ»¤æ³¢
  */
 static uint16_t ADC_Sliding_Filter(uint8_t channel_id, uint16_t adc_raw_val) 
 {
@@ -28,68 +36,88 @@ static uint16_t ADC_Sliding_Filter(uint8_t channel_id, uint16_t adc_raw_val)
     uint32_t sum = 0;
     uint16_t max = 0, min = 4095;
     
-    // 1. Ñ¹ÈëĞÂÊı¾İ
+    // 1. å‹å…¥æ–°æ•°æ®
     buf[channel_id][count[channel_id]++] = adc_raw_val;
     if(count[channel_id] >= ADC_SAMPLE_COUNT) count[channel_id] = 0;
     
-    // 2. É¨Ãè¼«ÖµÓë×ÜºÍ
+    // 2. æ‰«ææå€¼ä¸æ€»å’Œ
     for(int i = 0; i < ADC_SAMPLE_COUNT; i++) {
         sum += buf[channel_id][i];
         if(buf[channel_id][i] > max) max = buf[channel_id][i];
         if(buf[channel_id][i] < min) min = buf[channel_id][i];
     }
     
-    // 3. È¥µôÒ»¸ö×î¸ß¼â´Ì£¬È¥µôÒ»¸ö×îµÍ¼â´Ì£¬Çó¾ùÖµ
+    // 3. å»æ‰ä¸€ä¸ªæœ€é«˜å°–åˆºï¼Œå»æ‰ä¸€ä¸ªæœ€ä½å°–åˆºï¼Œæ±‚å‡å€¼
     sum = sum - max - min;
     return (uint16_t)(sum / (ADC_SAMPLE_COUNT - 2));
 }
 
 /**
- * @brief  ADC Óë DMA µ×²ãÆô¶¯
- * @note   ±ØĞëÔÚ main µÄ while(1) Ö®Ç°µ÷ÓÃ
+ * @brief  ADC ä¸ DMA åº•å±‚å¯åŠ¨
+ * @note   å¿…é¡»åœ¨ main çš„ while(1) ä¹‹å‰è°ƒç”¨
  */
 void ADC_Init(void) {
-    // 1. Ó²¼ş×ÔĞ£×¼ (¼«´óÌá¸ß¾«¶È£¬±ÈÈü±Ø¼Ó)
+    // 1. ç¡¬ä»¶è‡ªæ ¡å‡† (æå¤§æé«˜ç²¾åº¦ï¼Œæ¯”èµ›å¿…åŠ )
     HAL_ADCEx_Calibration_Start(&ADC_R38_HANDLE, ADC_SINGLE_ENDED);
     HAL_ADCEx_Calibration_Start(&ADC_R37_HANDLE, ADC_SINGLE_ENDED);
     
     HAL_ADC_Start_DMA(&ADC_R38_HANDLE, (uint32_t*)dma_buff[0], 30);
     HAL_ADC_Start_DMA(&ADC_R37_HANDLE, (uint32_t*)dma_buff[1], 30);
+
+    /* ã€æ€§èƒ½è¦ç‚¹ã€‘HAL_ADC_Start_DMA é»˜è®¤ä¼šæ‰“å¼€ DMA çš„ã€åŠä¼ è¾“ã€‘ä¸ã€ä¼ è¾“å®Œæˆã€‘ä¸­æ–­ã€‚
+     * æœ¬å·¥ç¨‹ ADC æ—¶é’Ÿ = PCLK2/2 = 40MHzï¼Œ12 ä½è½¬æ¢æ€»æ—¶é•¿ä»… 15 ä¸ª ADC å‘¨æœŸï¼Œ
+     * å³çº¦ 2.67 MSa/sï¼›30 ç‚¹ç¯å½¢ç¼“å†²æ„å‘³ç€æ¯é€šé“çº¦ 178k æ¬¡ä¸­æ–­/ç§’ï¼Œ
+     * ä¸¤è·¯åˆè®¡çº¦ 35 ä¸‡æ¬¡/ç§’ï¼Œä¼šåƒæ‰ä¸»å¾ªç¯å¤§åŠ CPUï¼Œæ—¶é—´ç‰‡è°ƒåº¦å½¢åŒè™šè®¾ã€‚
+     * è¿™é‡Œæ”¹ä¸ºã€çº¯ DMA é™é»˜æ¬è¿ã€‘ï¼šå…³æ‰ä¸¤ä¸ªä¸­æ–­ä¸”ä¸å¯åŠ¨ NVICï¼ŒCPU é›¶å‚ä¸ï¼Œ
+     * adc_proc() æ¯ 10ms ç›´æ¥è¯»å–æœ€æ–° 30 ç‚¹çª—å£å³å¯ã€‚
+     * è¯´æ˜ï¼šç¯å½¢ç¼“å†²ä¼šè¢« DMA è¾¹å†™è¾¹è¯»ï¼Œä½†ç”µä½å™¨ç» RC æ»¤æ³¢å 10us å†…ç”µå¹³æ— å˜åŒ–ï¼Œ
+     * ä¸”åé¢è¿˜æœ‰å»æå€¼ + æ»‘åŠ¨çª—å£åŒé‡æ»¤æ³¢ï¼Œè¯¥"æ’•è£‚è¯»"æ— å®é™…å½±å“ã€‚ */
+    __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+    __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_TC);
+    __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
+    __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_TC);
+    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
+    HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
+    /* ä¼ è¾“é”™è¯¯ä¸­æ–­ä¹Ÿä¸€å¹¶å…³æ‰ï¼šDMA åªåœ¨æ€»çº¿çº§æ•…éšœæ—¶æ‰ä¼šè§¦å‘å®ƒï¼Œå±Šæ—¶ç¼“å†²åŒºä¼š
+     * ä¿æŒæ—§å€¼ï¼Œè€Œè¯»æ•°æ¯ 10ms ä»åœ¨åˆ·æ–°ï¼Œå±äºæ¸©å’Œçš„é™çº§è¡Œä¸ºï¼›è‹¥æ‰“å¼€å®ƒåˆ™éœ€è¦
+     * é¢å¤–å®ç° ErrorCallbackï¼Œå¯¹ä¸€ä¸ªç”µä½å™¨è¯»æ•°è€Œè¨€æ²¡æœ‰å¿…è¦ã€‚ */
+    __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_TE);
+    __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_TE);
 }
 
 /**
- * @brief  ADC Êı¾İ´¦ÀíÈÎÎñ 
- * @note   ½¨Òéµ÷¶ÈÖÜÆÚ£º10ms~50ms¡£´¦ÀíÍê±ÏºóÖ±½Ó½«¼ÆËã³öµÄÎïÀíµçÑ¹ÉÏ±¨¸ø sys ×Öµä¡£
+ * @brief  ADC æ•°æ®å¤„ç†ä»»åŠ¡ 
+ * @note   å»ºè®®è°ƒåº¦å‘¨æœŸï¼š10ms~50msã€‚å¤„ç†å®Œæ¯•åç›´æ¥å°†è®¡ç®—å‡ºçš„ç‰©ç†ç”µå‹ä¸ŠæŠ¥ç»™ sys å­—å…¸ã€‚
  */
 void adc_proc(void) {
     uint32_t sum_adc1 = 0, sum_adc2 = 0;
     uint16_t max1 = 0, min1 = 4095;
     uint16_t max2 = 0, min2 = 4095;
 
-    // --- µÚÒ»ÖØ·À»¤£ºDMA Ó²¼ş¼¶Ë²Ì¬ÇåÏ´ ---
-    // 1. ±éÀú 30 ¸ö²ÉÑùµã£¬ÀÛ¼Ó²¢ÕÒ³ö×î´ó×îĞ¡Öµ
+    // --- ç¬¬ä¸€é‡é˜²æŠ¤ï¼šDMA ç¡¬ä»¶çº§ç¬æ€æ¸…æ´— ---
+    // 1. éå† 30 ä¸ªé‡‡æ ·ç‚¹ï¼Œç´¯åŠ å¹¶æ‰¾å‡ºæœ€å¤§æœ€å°å€¼
     for(uint8_t i = 0; i < 30; i++) {
-        // Í³¼ÆÍ¨µÀ 1 (R38)
+        // ç»Ÿè®¡é€šé“ 1 (R38)
         if(dma_buff[0][i] > max1) max1 = dma_buff[0][i];
         if(dma_buff[0][i] < min1) min1 = dma_buff[0][i];
         sum_adc1 += dma_buff[0][i];
 
-        // Í³¼ÆÍ¨µÀ 2 (R37)
+        // ç»Ÿè®¡é€šé“ 2 (R37)
         if(dma_buff[1][i] > max2) max2 = dma_buff[1][i];
         if(dma_buff[1][i] < min2) min2 = dma_buff[1][i];
         sum_adc2 += dma_buff[1][i];
     }
 
-    // 2. »ñÈ¡µ±Ç°ÖÜÆÚÄÚÏà¶Ô¸É¾»µÄÔ­Ê¼¾ùÖµ
+    // 2. è·å–å½“å‰å‘¨æœŸå†…ç›¸å¯¹å¹²å‡€çš„åŸå§‹å‡å€¼
     uint16_t hw_raw_r38 = (sum_adc1 - max1 - min1) / 28;
     uint16_t hw_raw_r37 = (sum_adc2 - max2 - min2) / 28;
 
-    // --- µÚ¶şÖØ·À»¤£ºÊ±¼äÖá»¬¶¯´°¿ÚÂË²¨ ---
-    // 3. ½«Ó²¼ş¾ùÖµËÍÈë»¬¶¯´°¿Ú£¬Ïû³ı³¤ÖÜÆÚµÄÍ»·¢¼â´Ì
+    // --- ç¬¬äºŒé‡é˜²æŠ¤ï¼šæ—¶é—´è½´æ»‘åŠ¨çª—å£æ»¤æ³¢ ---
+    // 3. å°†ç¡¬ä»¶å‡å€¼é€å…¥æ»‘åŠ¨çª—å£ï¼Œæ¶ˆé™¤é•¿å‘¨æœŸçš„çªå‘å°–åˆº
     uint16_t final_r38 = ADC_Sliding_Filter(0, hw_raw_r38);
     uint16_t final_r37 = ADC_Sliding_Filter(1, hw_raw_r37);
 
-    // 4. »»ËãÎªÕæÊµµçÑ¹²¢Ö±½ÓÍ¬²½ÖÁÈ«¾Ö×Öµä
+    // 4. æ¢ç®—ä¸ºçœŸå®ç”µå‹å¹¶ç›´æ¥åŒæ­¥è‡³å…¨å±€å­—å…¸
     sys.r38_voltage = (final_r38 / 4096.0f) * 3.3f; 
     sys.r37_voltage = (final_r37 / 4096.0f) * 3.3f; 
 }

@@ -30,9 +30,14 @@ BLUEBRIDGE-STM32G431-TEMPLATE/
 ├── Drivers/                # STM32G4xx HAL 库与 CMSIS 底层驱动
 ├── MDK-ARM/                # Keil uVision5 工程目录
 ├── .gitea/workflows/       # 内置 keil-build.yaml，支持 CI/CD 自动化云端编译
+├── tools/                  # 🔧 维护工具源码 (不参与编译)
+│   └── randomize_file_times.cs   # 时间戳随机化工具的 C# 源码
 ├── 蓝桥杯嵌入式十五届.md     # 📝 核心数据建模表 (做题第一步，灵魂所在)
 ├── clean.bat               # Windows 一键清理编译临时文件脚本
-└── clean_template.py       # Python 深度清理脚本，保持工程纯净
+├── clean_template.py       # 由 APP 生成 APP_Lite 精简版 (删注释，自动同步)
+├── randomize_file_times.exe      # 🕒 一键打散文件时间戳 (独立 exe，免装环境)
+├── randomize_file_times.ps1      # 同上，PowerShell 版 (仅需系统自带 PowerShell)
+└── randomize_file_times.py       # 同上，Python 版
 ```
 
 ---
@@ -133,6 +138,57 @@ if (sys.f_a_cal > sys.para_ph) sys.led_ctrl[1] = 1; // 亮 LD2
 * **持续集成 (CI)**：内置 `.gitea/workflows/keil-build.yaml`，推送到支持 Actions 的 Git 远端后，可自动触发云端 Keil 编译校验。
 
 祝你在蓝桥杯赛场上，代码一遍过，早日拿国一！🏆
+
+---
+
+## 🔧 工程维护工具
+
+三个小工具放在工程根目录，都不参与编译，只用来维护仓库本身。
+
+### 🕒 时间戳随机化（抹掉“批量生成”痕迹）
+
+生成/清理脚本跑完后，整批文件的时间戳会整齐地挤在同一秒——一眼就能看出是工具产物。
+该工具把文件的**创建时间**与**修改时间**打散到“最近 N 分钟内”的随机时刻，
+并保证 **创建时间 ≤ 修改时间**（符合真实文件的因果顺序）。
+
+提供三个等价版本，参数完全一致，按环境选一个即可：
+
+| 版本 | 文件 | 运行环境 |
+| :--- | :--- | :--- |
+| **独立 exe（推荐）** | `randomize_file_times.exe` | 什么都不用装（.NET Framework 4.x 是 Win10+ 系统自带） |
+| PowerShell | `randomize_file_times.ps1` | 系统自带 PowerShell，源码可读 |
+| Python | `randomize_file_times.py` | Python 3 |
+
+```bat
+randomize_file_times.exe --dry-run         :: 先预览，确认目标（第一次务必这样跑）
+randomize_file_times.exe                   :: 确认后生效：打散到最近 60 分钟
+randomize_file_times.exe --minutes 30      :: 改成最近 30 分钟
+randomize_file_times.exe --seed 42         :: 固定随机种子，结果可复现
+randomize_file_times.exe APP               :: 只处理 APP 文件夹
+```
+
+PowerShell 版被执行策略拦住时：
+
+```bat
+powershell -ExecutionPolicy Bypass -File randomize_file_times.ps1 -DryRun
+```
+
+> ⚠️ 三点提醒：① 只改创建/修改时间，**不动访问时间**；② **没有任何“恢复原值”功能**，
+> 改掉就找不回来，所以务必先 `--dry-run`；③ 只处理**文件**，文件夹自身的时间戳不动。
+
+### 🧹 清理与精简
+
+| 工具 | 作用 |
+| :--- | :--- |
+| `clean.bat` | Windows 一键删除 Keil 编译中间文件（.o/.crf/.axf/.hex 等），双击即可 |
+| `clean_template.py` | 由 `APP/` 自动生成 `APP_Lite/` 精简版：剥离全部注释并压缩空行（约省一半体积） |
+
+```bat
+python clean_template.py
+```
+
+> 💡 `APP_Lite` 是 `APP` 的**派生副本**，不是独立分支。改完 `APP` 重跑本脚本即可保持同步，
+> 不要手工改 `APP_Lite`（下次生成会被覆盖）。两个目录都不在 Keil 工程里——工程只编译 `APP/Src`。
 
 ---
 

@@ -1,20 +1,20 @@
 // uart_app.c
 #include "uart_app.h"
-#include "usart.h"         
-#include "global_system.h" 
+#include "usart.h"
+#include "global_system.h"
 #include <string.h>
 #include <stdio.h>
 
-extern DMA_HandleTypeDef hdma_usart1_rx; 
+extern DMA_HandleTypeDef hdma_usart1_rx;
 
-static uint8_t dma_rx_buf[UART_RX_MAX_LEN]; 
+static uint8_t dma_rx_buf[UART_RX_MAX_LEN];
 
-uint8_t  uart_rx_buf[UART_RX_MAX_LEN]; 
+uint8_t  uart_rx_buf[UART_RX_MAX_LEN];
 uint16_t uart_rx_len = 0;
 
 void UART_Init(void) {
 
-    HAL_UARTEx_ReceiveToIdle_DMA(&UART_APP_HANDLE, dma_rx_buf, UART_RX_MAX_LEN);
+    HAL_UARTEx_ReceiveToIdle_DMA(&UART_APP_HANDLE, dma_rx_buf, UART_RX_MAX_LEN - 1);
 
     __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
 }
@@ -24,13 +24,13 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 
         memcpy(uart_rx_buf, dma_rx_buf, Size);
 
-        uart_rx_buf[Size] = '\0'; 
+        uart_rx_buf[Size] = '\0';
         uart_rx_len = Size;
 
-        sys.uart_rx_ready = true; 
+        sys.uart_rx_ready = true;
 
-        HAL_UARTEx_ReceiveToIdle_DMA(&UART_APP_HANDLE, dma_rx_buf, UART_RX_MAX_LEN);
-        __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT); 
+        HAL_UARTEx_ReceiveToIdle_DMA(&UART_APP_HANDLE, dma_rx_buf, UART_RX_MAX_LEN - 1);
+        __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
     }
 }
 

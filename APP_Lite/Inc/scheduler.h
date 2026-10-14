@@ -7,9 +7,9 @@
 typedef void (*TaskFunc_t)(void);
 
 typedef struct {
-    TaskFunc_t task_func;  
-    uint32_t rate_ms;      
-    uint32_t last_run;     
+    TaskFunc_t task_func;
+    uint32_t rate_ms;
+    uint32_t last_run;
 } Task_t;
 
 void Scheduler_Init(void);

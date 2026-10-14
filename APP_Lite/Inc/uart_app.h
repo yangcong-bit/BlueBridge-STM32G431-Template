@@ -4,10 +4,10 @@
 
 #include "main.h"
 
-#define UART_RX_MAX_LEN 128 
+#define UART_RX_MAX_LEN 128
 
-extern uint8_t  uart_rx_buf[UART_RX_MAX_LEN]; 
-extern uint16_t uart_rx_len;                  
+extern uint8_t  uart_rx_buf[UART_RX_MAX_LEN];
+extern uint16_t uart_rx_len;
 
 void UART_Init(void);
 void UART_Proc(void);

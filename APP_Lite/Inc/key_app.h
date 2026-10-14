@@ -3,7 +3,7 @@
 #define __KEY_APP_H
 
 #include "main.h"
-#include "global_system.h" 
+#include "global_system.h"
 
 #define KEY1  1
 #define KEY2  2

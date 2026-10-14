@@ -1,6 +1,6 @@
 /**
  * @file    rtc_app.h
- * @brief   RTC Ó²¼şÊ±ÖÓÄ£¿é
+ * @brief   RTC ç¡¬ä»¶æ—¶é’Ÿæ¨¡å—
  */
 #ifndef __RTC_APP_H
 #define __RTC_APP_H

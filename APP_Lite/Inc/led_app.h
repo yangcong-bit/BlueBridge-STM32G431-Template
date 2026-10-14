@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-void LED_Disp(void); 
-void LED_Proc(void); 
+void LED_Disp(void);
+void LED_Proc(void);
 
 #endif

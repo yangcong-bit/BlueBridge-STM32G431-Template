@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-void UI_Init(void); 
-void UI_Proc(void); 
+void UI_Init(void);
+void UI_Proc(void);
 
 #endif

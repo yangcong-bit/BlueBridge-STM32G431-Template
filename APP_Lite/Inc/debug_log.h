@@ -4,13 +4,13 @@
 
 #include "main.h"
 
-#define LOG_LEVEL_NONE  0  
-#define LOG_LEVEL_ERROR 1  
-#define LOG_LEVEL_WARN  2  
-#define LOG_LEVEL_INFO  3  
-#define LOG_LEVEL_DEBUG 4  
+#define LOG_LEVEL_NONE  0
+#define LOG_LEVEL_ERROR 1
+#define LOG_LEVEL_WARN  2
+#define LOG_LEVEL_INFO  3
+#define LOG_LEVEL_DEBUG 4
 
-#define SYSTEM_LOG_LEVEL  LOG_LEVEL_NONE 
+#define SYSTEM_LOG_LEVEL  LOG_LEVEL_NONE
 
 void Debug_Log_Print(const char *level_str, const char *file, int line, const char *fmt, ...);
 

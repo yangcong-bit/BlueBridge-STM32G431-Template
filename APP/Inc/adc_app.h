@@ -1,8 +1,8 @@
 /**
  * @file    adc_app.h
- * @brief   ˫ͨ�� ADC �ɼ����˲�ģ��
- * @note    ���� DMA �����������̳���˽�л����ⲿֻ����ó�ʼ���봦��������
- * ���յ�ѹ������Զ�ͬ���� global_system.h �� sys �ֵ��С�
+ * @brief   双通道 ADC 采集与滤波模块
+ * @note    所有 DMA 缓存与计算过程彻底私有化，外部只需调用初始化与处理函数，
+ * 最终电压结果会自动同步至 global_system.h 的 sys 字典中。
  */
 #ifndef __ADC_APP_H__
 #define __ADC_APP_H__

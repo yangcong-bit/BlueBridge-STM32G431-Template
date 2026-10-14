@@ -1,15 +1,15 @@
 // adc_app.c
 #include "adc_app.h"
-#include "adc.h"           
-#include "global_system.h" 
+#include "adc.h"
+#include "global_system.h"
 
 static uint16_t dma_buff[2][30];
 
 #define ADC_SAMPLE_COUNT 5
 
-static uint16_t ADC_Sliding_Filter(uint8_t channel_id, uint16_t adc_raw_val) 
+static uint16_t ADC_Sliding_Filter(uint8_t channel_id, uint16_t adc_raw_val)
 {
-    static uint16_t buf[2][ADC_SAMPLE_COUNT] = {0}; 
+    static uint16_t buf[2][ADC_SAMPLE_COUNT] = {0};
     static uint8_t count[2] = {0};
     uint32_t sum = 0;
     uint16_t max = 0, min = 4095;
@@ -34,6 +34,13 @@ void ADC_Init(void) {
 
     HAL_ADC_Start_DMA(&ADC_R38_HANDLE, (uint32_t*)dma_buff[0], 30);
     HAL_ADC_Start_DMA(&ADC_R37_HANDLE, (uint32_t*)dma_buff[1], 30);
+
+    __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+    __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_TC);
+    __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
+    __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_TC);
+    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
+    HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
 }
 
 void adc_proc(void) {
@@ -58,6 +65,6 @@ void adc_proc(void) {
     uint16_t final_r38 = ADC_Sliding_Filter(0, hw_raw_r38);
     uint16_t final_r37 = ADC_Sliding_Filter(1, hw_raw_r37);
 
-    sys.r38_voltage = (final_r38 / 4096.0f) * 3.3f; 
-    sys.r37_voltage = (final_r37 / 4096.0f) * 3.3f; 
+    sys.r38_voltage = (final_r38 / 4096.0f) * 3.3f;
+    sys.r37_voltage = (final_r37 / 4096.0f) * 3.3f;
 }

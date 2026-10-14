@@ -50,40 +50,40 @@ void REG_8230_Init(void)
 
 void REG_932X_Init(void)
 {
-    LCD_WriteReg(R227, 0x3008);   
-    LCD_WriteReg(R231, 0x0012); 
-    LCD_WriteReg(R239, 0x1231);   
-    LCD_WriteReg(R1, 0x0000);   
-    LCD_WriteReg(R2, 0x0700);   
-    LCD_WriteReg(R3, 0x1030);     
-    LCD_WriteReg(R4, 0x0000);     
-    LCD_WriteReg(R8, 0x0207);     
-    LCD_WriteReg(R9, 0x0000);     
-    LCD_WriteReg(R10, 0x0000);    
-    LCD_WriteReg(R12, 0x0000);  
-    LCD_WriteReg(R13, 0x0000);    
-    LCD_WriteReg(R15, 0x0000);  
+    LCD_WriteReg(R227, 0x3008);
+    LCD_WriteReg(R231, 0x0012);
+    LCD_WriteReg(R239, 0x1231);
+    LCD_WriteReg(R1, 0x0000);
+    LCD_WriteReg(R2, 0x0700);
+    LCD_WriteReg(R3, 0x1030);
+    LCD_WriteReg(R4, 0x0000);
+    LCD_WriteReg(R8, 0x0207);
+    LCD_WriteReg(R9, 0x0000);
+    LCD_WriteReg(R10, 0x0000);
+    LCD_WriteReg(R12, 0x0000);
+    LCD_WriteReg(R13, 0x0000);
+    LCD_WriteReg(R15, 0x0000);
 
-    LCD_WriteReg(R16, 0x0000);    
-    LCD_WriteReg(R17, 0x0007);    
-    LCD_WriteReg(R18, 0x0000);  
-    LCD_WriteReg(R19, 0x0000);    
+    LCD_WriteReg(R16, 0x0000);
+    LCD_WriteReg(R17, 0x0007);
+    LCD_WriteReg(R18, 0x0000);
+    LCD_WriteReg(R19, 0x0000);
 
     HAL_Delay(200);
-    LCD_WriteReg(R16, 0x1690);    
-    LCD_WriteReg(R17, 0x0227);  
+    LCD_WriteReg(R16, 0x1690);
+    LCD_WriteReg(R17, 0x0227);
 
     HAL_Delay(50);
-    LCD_WriteReg(R18, 0x001D);  
+    LCD_WriteReg(R18, 0x001D);
 
     HAL_Delay(50);
-    LCD_WriteReg(R19, 0x0800);  
-    LCD_WriteReg(R41, 0x0014);  
-    LCD_WriteReg(R43, 0x000B);    
+    LCD_WriteReg(R19, 0x0800);
+    LCD_WriteReg(R41, 0x0014);
+    LCD_WriteReg(R43, 0x000B);
 
     HAL_Delay(50);
-    LCD_WriteReg(R32, 0x0000);  
-    LCD_WriteReg(R33, 0x0000);  
+    LCD_WriteReg(R32, 0x0000);
+    LCD_WriteReg(R33, 0x0000);
 
     LCD_WriteReg(R48, 0x0007);
     LCD_WriteReg(R49, 0x0707);
@@ -96,13 +96,13 @@ void REG_932X_Init(void)
     LCD_WriteReg(R60, 0x0701);
     LCD_WriteReg(R61, 0x000F);
 
-    LCD_WriteReg(R80, 0x0000);    
-    LCD_WriteReg(R81, 0x00EF);    
-    LCD_WriteReg(R82, 0x0000);  
-    LCD_WriteReg(R83, 0x013F);  
-    LCD_WriteReg(R96, 0x2700);  
-    LCD_WriteReg(R97, 0x0001);  
-    LCD_WriteReg(R106, 0x0000); 
+    LCD_WriteReg(R80, 0x0000);
+    LCD_WriteReg(R81, 0x00EF);
+    LCD_WriteReg(R82, 0x0000);
+    LCD_WriteReg(R83, 0x013F);
+    LCD_WriteReg(R96, 0x2700);
+    LCD_WriteReg(R97, 0x0001);
+    LCD_WriteReg(R106, 0x0000);
 
     LCD_WriteReg(R128, 0x0000);
     LCD_WriteReg(R129, 0x0000);
@@ -118,9 +118,9 @@ void REG_932X_Init(void)
     LCD_WriteReg(R151, 0x0000);
     LCD_WriteReg(R152, 0x0000);
 
-    LCD_WriteReg(R3, 0x01018);    
+    LCD_WriteReg(R3, 0x01018);
 
-    LCD_WriteReg(R7, 0x0173);   
+    LCD_WriteReg(R7, 0x0173);
 }
 
 void LCD_Init(void)
@@ -159,7 +159,7 @@ void LCD_Clear(u16 Color)
 {
     u32 index = 0;
     LCD_SetCursor(0x00, 0x0000);
-    LCD_WriteRAM_Prepare(); 
+    LCD_WriteRAM_Prepare();
     for(index = 0; index < 76800; index++)
     {
         LCD_WriteRAM(Color);
@@ -182,7 +182,7 @@ void LCD_DrawChar(u8 Xpos, u16 Ypos, uc16 *c)
 
     for(index = 0; index < 24; index++)
     {
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         for(i = 0; i < 16; i++)
         {
             if((c[index] & (1 << i)) == 0x00)
@@ -210,7 +210,7 @@ void LCD_DisplayStringLine(u8 Line, u8 *ptr)
     u32 i = 0;
     u16 refcolumn = 319;
 
-    while ((*ptr != 0) && (i < 20))	 
+    while ((*ptr != 0) && (i < 20))
     {
         LCD_DisplayChar(Line, refcolumn, *ptr);
         refcolumn -= 16;
@@ -256,7 +256,7 @@ void LCD_DrawLine(u8 Xpos, u16 Ypos, u16 Length, u8 Direction)
     LCD_SetCursor(Xpos, Ypos);
     if(Direction == Horizontal)
     {
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         for(i = 0; i < Length; i++)
         {
             LCD_WriteRAM(TextColor);
@@ -266,7 +266,7 @@ void LCD_DrawLine(u8 Xpos, u16 Ypos, u16 Length, u8 Direction)
     {
         for(i = 0; i < Length; i++)
         {
-            LCD_WriteRAM_Prepare(); 
+            LCD_WriteRAM_Prepare();
             LCD_WriteRAM(TextColor);
             Xpos++;
             LCD_SetCursor(Xpos, Ypos);
@@ -296,35 +296,35 @@ void LCD_DrawCircle(u8 Xpos, u16 Ypos, u16 Radius)
     while (CurX <= CurY)
     {
         LCD_SetCursor(Xpos + CurX, Ypos + CurY);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos + CurX, Ypos - CurY);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos - CurX, Ypos + CurY);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos - CurX, Ypos - CurY);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos + CurY, Ypos + CurX);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos + CurY, Ypos - CurX);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos - CurY, Ypos + CurX);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         LCD_SetCursor(Xpos - CurY, Ypos - CurX);
-        LCD_WriteRAM_Prepare(); 
+        LCD_WriteRAM_Prepare();
         LCD_WriteRAM(TextColor);
 
         if (D < 0)
@@ -346,7 +346,7 @@ void LCD_DrawMonoPict(uc32 *Pict)
 
     LCD_SetCursor(0, 319);
 
-    LCD_WriteRAM_Prepare(); 
+    LCD_WriteRAM_Prepare();
     for(index = 0; index < 2400; index++)
     {
         for(i = 0; i < 32; i++)
@@ -587,7 +587,7 @@ void LCD_DrawPicture(const u8 *picture)
     int index;
     LCD_SetCursor(0x00, 0x0000);
 
-    LCD_WriteRAM_Prepare(); 
+    LCD_WriteRAM_Prepare();
 
     for(index = 0; index < 76800; index++)
     {

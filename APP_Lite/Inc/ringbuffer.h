@@ -5,12 +5,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RB_MAX_LEN  256  
+#define RB_MAX_LEN  256
 
 typedef struct {
-    uint16_t head;                 
-    uint16_t tail;                 
-    uint8_t  buffer[RB_MAX_LEN];   
+    uint16_t head;
+    uint16_t tail;
+    uint8_t  buffer[RB_MAX_LEN];
 } RingBuffer_t;
 
 void RB_Init(RingBuffer_t *rb);

@@ -1,18 +1,18 @@
 /**
  * @file    debug_log.c
- * @brief   µ×²ã UART ¸ñÊ½»¯ÈÕÖ¾·¢ËÍÒıÇæ
+ * @brief   åº•å±‚ UART æ ¼å¼åŒ–æ—¥å¿—å‘é€å¼•æ“
  */
 #include "debug_log.h"
-#include "usart.h" // ÒıÈëµ×²ã´®¿Ú¾ä±ú huart1
+#include "usart.h" // å¼•å…¥åº•å±‚ä¸²å£å¥æŸ„ huart1
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 
-#define LOG_BUFFER_SIZE 256  ///< µ¥ÌõÈÕÖ¾×î´óÈİÄÉ³¤¶È
+#define LOG_BUFFER_SIZE 256  ///< å•æ¡æ—¥å¿—æœ€å¤§å®¹çº³é•¿åº¦
 
 /**
- * @brief  ÏµÍ³µ×²ãÈÕÖ¾¸ñÊ½»¯Óë·¢ËÍÒıÇæ
- * @note   Ö»ÓĞÔÚÍ·ÎÄ¼şºê¶¨ÒåÔÊĞíµÄµÈ¼¶ÏÂ£¬²Å»á±»±àÒëºÍµ÷ÓÃ¡£
+ * @brief  ç³»ç»Ÿåº•å±‚æ—¥å¿—æ ¼å¼åŒ–ä¸å‘é€å¼•æ“
+ * @note   åªæœ‰åœ¨å¤´æ–‡ä»¶å®å®šä¹‰å…è®¸çš„ç­‰çº§ä¸‹ï¼Œæ‰ä¼šè¢«ç¼–è¯‘å’Œè°ƒç”¨ã€‚
  */
 void Debug_Log_Print(const char *level_str, const char *file, int line, const char *fmt, ...) {
     #if (SYSTEM_LOG_LEVEL > LOG_LEVEL_NONE)
@@ -20,31 +20,31 @@ void Debug_Log_Print(const char *level_str, const char *file, int line, const ch
     char log_buf[LOG_BUFFER_SIZE];
     char msg_buf[LOG_BUFFER_SIZE];
     
-    // 1. ´¦Àí²»¶¨³¤²ÎÊı£¬¸ñÊ½»¯ÓÃ»§ºËĞÄÏûÏ¢ (ÀàËÆ printf)
+    // 1. å¤„ç†ä¸å®šé•¿å‚æ•°ï¼Œæ ¼å¼åŒ–ç”¨æˆ·æ ¸å¿ƒæ¶ˆæ¯ (ç±»ä¼¼ printf)
     va_list args;
     va_start(args, fmt);
     vsnprintf(msg_buf, sizeof(msg_buf), fmt, args);
     va_end(args);
     
-    // 2. ×Ô¶¯²Ã¼ô¾ø¶ÔÂ·¾¶£¬½ö±£Áô´¿ÎÄ¼şÃû
-    // MDK/Keil µÄ __FILE__ ºêÍùÍù´ø¼«³¤µÄÅÌ·û¾ø¶ÔÂ·¾¶£¬²Ã¼ôÒÔ½ÚÔ¼´®¿Ú´ø¿í
+    // 2. è‡ªåŠ¨è£å‰ªç»å¯¹è·¯å¾„ï¼Œä»…ä¿ç•™çº¯æ–‡ä»¶å
+    // MDK/Keil çš„ __FILE__ å®å¾€å¾€å¸¦æé•¿çš„ç›˜ç¬¦ç»å¯¹è·¯å¾„ï¼Œè£å‰ªä»¥èŠ‚çº¦ä¸²å£å¸¦å®½
     const char *file_name = strrchr(file, '/');
     if (!file_name) {
-        file_name = strrchr(file, '\\'); // ¼æÈİ Windows µÄ·´Ğ±¸Ü
+        file_name = strrchr(file, '\\'); // å…¼å®¹ Windows çš„åæ–œæ 
     }
     if (file_name) {
-        file_name++; // Ìø¹ı×îºóµÄĞ±¸Ü£¬ÄÃµ½´¿ÎÄ¼şÃû
+        file_name++; // è·³è¿‡æœ€åçš„æ–œæ ï¼Œæ‹¿åˆ°çº¯æ–‡ä»¶å
     } else {
         file_name = file;
     }
     
-    // 3. ×é×°ÖÕ¼«±¨ÎÄ¸ñÊ½: [Ê±¼ä´Á][µÈ¼¶](ÎÄ¼şÃû:ĞĞºÅ) ÏûÏ¢\r\n
-    // ·¶Àı: [00015432][INFO ](key_app.c:64) Key 1 short pressed.
+    // 3. ç»„è£…ç»ˆææŠ¥æ–‡æ ¼å¼: [æ—¶é—´æˆ³][ç­‰çº§](æ–‡ä»¶å:è¡Œå·) æ¶ˆæ¯\r\n
+    // èŒƒä¾‹: [00015432][INFO ](key_app.c:64) Key 1 short pressed.
     snprintf(log_buf, sizeof(log_buf), "[%08lu][%s](%s:%d) %s\r\n", 
              HAL_GetTick(), level_str, file_name, line, msg_buf);
              
-    // 4. µ÷ÓÃµ×²ã´®¿Ú×èÈû·¢ËÍ
-    // ¡¾ÖØÒªÌáÊ¾¡¿£ºµ÷ÊÔÆÚ±ØĞëÓÃ×èÈû·¢ËÍ (HAL_MAX_DELAY)£¬±£Ö¤º£Á¿²¢·¢ÈÕÖ¾ÍêÕû²»¶ªÊ§
+    // 4. è°ƒç”¨åº•å±‚ä¸²å£é˜»å¡å‘é€
+    // ã€é‡è¦æç¤ºã€‘ï¼šè°ƒè¯•æœŸå¿…é¡»ç”¨é˜»å¡å‘é€ (HAL_MAX_DELAY)ï¼Œä¿è¯æµ·é‡å¹¶å‘æ—¥å¿—å®Œæ•´ä¸ä¸¢å¤±
     HAL_UART_Transmit(&huart1, (uint8_t *)log_buf, strlen(log_buf), HAL_MAX_DELAY);
     
     #endif

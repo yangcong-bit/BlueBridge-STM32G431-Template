@@ -11,7 +11,7 @@ bool RB_Write(RingBuffer_t *rb, uint8_t data) {
     uint16_t next_head = (rb->head + 1) % RB_MAX_LEN;
 
     if (next_head == rb->tail) {
-        return false; 
+        return false;
     }
 
     rb->buffer[rb->head] = data;

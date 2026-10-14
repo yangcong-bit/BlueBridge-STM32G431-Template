@@ -1,14 +1,14 @@
 /**
  * @file    freq_app.c
- * @brief   Ë«Í¨µÀÊäÈë²¶»ñÖÐ¶Ï»Øµ÷ÓëÆµÂÊ¼ÆËãºËÐÄ (ÍêÃÀ´¦Àí¼ÆÊýÆ÷Òç³ö)
- * @note    ÒÑÍê³Éµ×²ãÓ²¼þºêÌæ»»½âñî¡£ÐÞ¸ÄÒý½Å»ò¶¨Ê±Æ÷ÇëÖÁ global_system.h ÖÐÐÞ¸Äºê¡£
+ * @brief   åŒé€šé“è¾“å…¥æ•èŽ·ä¸­æ–­å›žè°ƒä¸Žé¢‘çŽ‡è®¡ç®—æ ¸å¿ƒ (å®Œç¾Žå¤„ç†è®¡æ•°å™¨æº¢å‡º)
+ * @note    å·²å®Œæˆåº•å±‚ç¡¬ä»¶å®æ›¿æ¢è§£è€¦ã€‚ä¿®æ”¹å¼•è„šæˆ–å®šæ—¶å™¨è¯·è‡³ global_system.h ä¸­ä¿®æ”¹å®ã€‚
  */
 #include "freq_app.h"
 #include "tim.h"
-#include "global_system.h" // ÉÏ±¨Êý¾ÝÖÁÈ«¾Ö×Öµä£¬²¢ÒýÈëµ×²ãÓ²¼þÓ³Éäºê
+#include "global_system.h" // ä¸ŠæŠ¥æ•°æ®è‡³å…¨å±€å­—å…¸ï¼Œå¹¶å¼•å…¥åº•å±‚ç¡¬ä»¶æ˜ å°„å®
 
 /* ==========================================================
- * Í¨µÀ 1 Ë½ÓÐ×´Ì¬»ú±äÁ¿ (¶ÔÓ¦ FREQ_CH1)
+ * é€šé“ 1 ç§æœ‰çŠ¶æ€æœºå˜é‡ (å¯¹åº” FREQ_CH1)
  * ========================================================== */
 #if USE_HW_PWM_CH1 == 1
     static uint32_t ic1_period = 0, ic1_high = 0;
@@ -20,7 +20,7 @@
 static uint32_t ic1_last_tick = 0; 
 
 /* ==========================================================
- * Í¨µÀ 2 Ë½ÓÐ×´Ì¬»ú±äÁ¿ (¶ÔÓ¦ FREQ_CH2)
+ * é€šé“ 2 ç§æœ‰çŠ¶æ€æœºå˜é‡ (å¯¹åº” FREQ_CH2)
  * ========================================================== */
 #if USE_HW_PWM_CH2 == 1
     static uint32_t ic2_period = 0, ic2_high = 0;
@@ -33,16 +33,16 @@ static uint32_t ic2_last_tick = 0;
 
 
 /**
- * @brief  ÊäÈë²¶»ñ³õÊ¼»¯
+ * @brief  è¾“å…¥æ•èŽ·åˆå§‹åŒ–
  */
 void Freq_Init(void) {
-    // --- Æô¶¯ CH1 ¼àÌý ---
+    // --- å¯åŠ¨ CH1 ç›‘å¬ ---
     HAL_TIM_IC_Start_IT(&FREQ_CH1_HANDLE, FREQ_CH1_CH_MAIN);
 #if USE_HW_PWM_CH1 == 1
     HAL_TIM_IC_Start(&FREQ_CH1_HANDLE, FREQ_CH1_CH_SUB); 
 #endif
 
-    // --- Æô¶¯ CH2 ¼àÌý ---
+    // --- å¯åŠ¨ CH2 ç›‘å¬ ---
     HAL_TIM_IC_Start_IT(&FREQ_CH2_HANDLE, FREQ_CH2_CH_MAIN);
 #if USE_HW_PWM_CH2 == 1
     HAL_TIM_IC_Start(&FREQ_CH2_HANDLE, FREQ_CH2_CH_SUB); 
@@ -51,20 +51,20 @@ void Freq_Init(void) {
 
 
 /**
- * @brief HAL ¿âÍ³Ò»µÄÊäÈë²¶»ñÖÐ¶Ï»Øµ÷
+ * @brief HAL åº“ç»Ÿä¸€çš„è¾“å…¥æ•èŽ·ä¸­æ–­å›žè°ƒ
  */
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     
-    // ---------------- ×¥È¡ CH1 ----------------
+    // ---------------- æŠ“å– CH1 ----------------
     if (htim->Instance == FREQ_CH1_INST && htim->Channel == FREQ_CH1_ACTIVE) {
-        ic1_last_tick = HAL_GetTick(); // Ë¢ÐÂÁãÆµ±£»¤¿´ÃÅ¹·
+        ic1_last_tick = HAL_GetTick(); // åˆ·æ–°é›¶é¢‘ä¿æŠ¤çœ‹é—¨ç‹—
         
 #if USE_HW_PWM_CH1 == 1
         ic1_period = HAL_TIM_ReadCapturedValue(htim, FREQ_CH1_CH_MAIN);
         ic1_high   = HAL_TIM_ReadCapturedValue(htim, FREQ_CH1_CH_SUB);
         ic1_ready  = 1;
 #else
-        // Èí¼þÈý²½Çú£ºÉÏÉýÑØ×¥Ê×µã -> ÏÂ½µÑØ×¥¸ßµçÆ½ -> ÉÏÉýÑØ×¥ÖÜÆÚ
+        // è½¯ä»¶ä¸‰æ­¥æ›²ï¼šä¸Šå‡æ²¿æŠ“é¦–ç‚¹ -> ä¸‹é™æ²¿æŠ“é«˜ç”µå¹³ -> ä¸Šå‡æ²¿æŠ“å‘¨æœŸ
         if (ic1_state == 0) {
             ic1_val1 = HAL_TIM_ReadCapturedValue(htim, FREQ_CH1_CH_MAIN);
             __HAL_TIM_SET_CAPTUREPOLARITY(htim, FREQ_CH1_CH_MAIN, TIM_INPUTCHANNELPOLARITY_FALLING);
@@ -80,7 +80,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 #endif
     }
     
-    // ---------------- ×¥È¡ CH2 ----------------
+    // ---------------- æŠ“å– CH2 ----------------
     if (htim->Instance == FREQ_CH2_INST && htim->Channel == FREQ_CH2_ACTIVE) {
         ic2_last_tick = HAL_GetTick(); 
         
@@ -107,13 +107,13 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 
 
 /**
- * @brief  ÊäÈë²¶»ñÒµÎñ½áËãÓëÁãÆµ±£»¤ (ºËÐÄ·ÀÒç³öËã·¨)
- * @note   ½¨Òéµ÷¶ÈÖÜÆÚ£º50ms¡£¼ÆËãÍê±ÏÍ¬²½ÖÁ sys ×Öµä¡£
+ * @brief  è¾“å…¥æ•èŽ·ä¸šåŠ¡ç»“ç®—ä¸Žé›¶é¢‘ä¿æŠ¤ (æ ¸å¿ƒé˜²æº¢å‡ºç®—æ³•)
+ * @note   å»ºè®®è°ƒåº¦å‘¨æœŸï¼š50msã€‚è®¡ç®—å®Œæ¯•åŒæ­¥è‡³ sys å­—å…¸ã€‚
  */
 void Freq_Proc(void) {
     uint32_t current_tick = HAL_GetTick();
 
-    /* ================= CH1 ÆµÂÊ½áËã ================= */
+    /* ================= CH1 é¢‘çŽ‡ç»“ç®— ================= */
 #if USE_HW_PWM_CH1 == 1
     if (ic1_ready) {
         if (ic1_period != 0) {
@@ -125,8 +125,8 @@ void Freq_Proc(void) {
     }
 #else
     if (ic1_state == 3) {
-        // ·ÀÒç³öËã·¨£ºÈç¹û v3 >= v1 Õý³£¼ÆËã£»Èç¹û v3 < v1 ËµÃ÷ÖÐ¼äÒç³ö¹ýÒ»´Î¡£
-        // ´Ë´¦Ä¬ÈÏÒÔ 32Î» ¶¨Ê±Æ÷¼æÈÝÐ´·¨´¦Àí£¬Èç¹ûÊ¹ÓÃÁË 16Î» ¶¨Ê±Æ÷£¬Çë×¢ÒâÒç³öµã¡£
+        // é˜²æº¢å‡ºç®—æ³•ï¼šå¦‚æžœ v3 >= v1 æ­£å¸¸è®¡ç®—ï¼›å¦‚æžœ v3 < v1 è¯´æ˜Žä¸­é—´æº¢å‡ºè¿‡ä¸€æ¬¡ã€‚
+        // æ­¤å¤„é»˜è®¤ä»¥ 32ä½ å®šæ—¶å™¨å…¼å®¹å†™æ³•å¤„ç†ï¼Œå¦‚æžœä½¿ç”¨äº† 16ä½ å®šæ—¶å™¨ï¼Œè¯·æ³¨æ„æº¢å‡ºç‚¹ã€‚
         uint32_t period_ticks = (ic1_val3 >= ic1_val1) ? (ic1_val3 - ic1_val1) : ((0xFFFFFFFF - ic1_val1) + ic1_val3 + 1);
         uint32_t high_ticks   = (ic1_val2 >= ic1_val1) ? (ic1_val2 - ic1_val1) : ((0xFFFFFFFF - ic1_val1) + ic1_val2 + 1);
         
@@ -139,7 +139,7 @@ void Freq_Proc(void) {
     }
 #endif
     
-    // ¡¾ÁãÆµ¿´ÃÅ¹·¡¿£º³¬¹ý 1000ms Î´´¥·¢ÖÐ¶Ï£¬ËµÃ÷ÐÅºÅ±»°Îµô»òËÀÇø£¬Ç¿ÖÆ¹éÁã
+    // ã€é›¶é¢‘çœ‹é—¨ç‹—ã€‘ï¼šè¶…è¿‡ 1000ms æœªè§¦å‘ä¸­æ–­ï¼Œè¯´æ˜Žä¿¡å·è¢«æ‹”æŽ‰æˆ–æ­»åŒºï¼Œå¼ºåˆ¶å½’é›¶
     if (current_tick - ic1_last_tick > 1000) {
         sys.freq_ch1 = 0; sys.period_ch1 = 0; sys.duty_ch1 = 0.0f;
 #if USE_HW_PWM_CH1 == 0
@@ -148,7 +148,7 @@ void Freq_Proc(void) {
 #endif
     }
 
-    /* ================= CH2 ÆµÂÊ½áËã ================= */
+    /* ================= CH2 é¢‘çŽ‡ç»“ç®— ================= */
 #if USE_HW_PWM_CH2 == 1
     if (ic2_ready) {
         if (ic2_period != 0) {
@@ -160,7 +160,7 @@ void Freq_Proc(void) {
     }
 #else
     if (ic2_state == 3) {
-        // ·ÀÒç³öËã·¨£ºÈç¹û»»³É 16 Î»¶¨Ê±Æ÷£¨ÈçTIM3£©£¬Çë½« 0xFFFFFFFF ¸ÄÎª 0xFFFF
+        // é˜²æº¢å‡ºç®—æ³•ï¼šå¦‚æžœæ¢æˆ 16 ä½å®šæ—¶å™¨ï¼ˆå¦‚TIM3ï¼‰ï¼Œè¯·å°† 0xFFFFFFFF æ”¹ä¸º 0xFFFF
         uint32_t period_ticks = (ic2_val3 >= ic2_val1) ? (ic2_val3 - ic2_val1) : ((0xFFFFFFFF - ic2_val1) + ic2_val3 + 1);
         uint32_t high_ticks   = (ic2_val2 >= ic2_val1) ? (ic2_val2 - ic2_val1) : ((0xFFFFFFFF - ic2_val1) + ic2_val2 + 1);
         
@@ -173,7 +173,7 @@ void Freq_Proc(void) {
     }
 #endif
 
-    // CH2 ÁãÆµ¿´ÃÅ¹·
+    // CH2 é›¶é¢‘çœ‹é—¨ç‹—
     if (current_tick - ic2_last_tick > 1000) {
         sys.freq_ch2 = 0; sys.period_ch2 = 0; sys.duty_ch2 = 0.0f;
 #if USE_HW_PWM_CH2 == 0

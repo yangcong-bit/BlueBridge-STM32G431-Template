@@ -190,33 +190,33 @@ void I2CInit(void)
 void eeprom_write(uint8_t *buf, uint8_t addr, uint8_t num) {
     while(num--) {
         I2CStart();
-        I2CSendByte(0xA0);   
+        I2CSendByte(0xA0);
         I2CWaitAck();
-        I2CSendByte(addr++); 
+        I2CSendByte(addr++);
         I2CWaitAck();
-        I2CSendByte(*buf++); 
+        I2CSendByte(*buf++);
         I2CWaitAck();
         I2CStop();
-        HAL_Delay(5); 
+        HAL_Delay(5);
     }
 }
 
 void eeprom_read(uint8_t *buf, uint8_t addr, uint8_t num) {
     I2CStart();
-    I2CSendByte(0xA0); 
+    I2CSendByte(0xA0);
     I2CWaitAck();
     I2CSendByte(addr);
     I2CWaitAck();
 
     I2CStart();
-    I2CSendByte(0xA1); 
+    I2CSendByte(0xA1);
     I2CWaitAck();
     while(num--) {
         *buf++ = I2CReceiveByte();
         if(num) {
-            I2CSendAck();    
+            I2CSendAck();
         } else {
-            I2CSendNotAck(); 
+            I2CSendNotAck();
         }
     }
     I2CStop();
@@ -224,9 +224,9 @@ void eeprom_read(uint8_t *buf, uint8_t addr, uint8_t num) {
 
 void mcp4017_write(uint8_t val) {
     I2CStart();
-    I2CSendByte(0x5E); 
+    I2CSendByte(0x5E);
     I2CWaitAck();
-    I2CSendByte(val);  
+    I2CSendByte(val);
     I2CWaitAck();
     I2CStop();
 }
@@ -234,7 +234,7 @@ void mcp4017_write(uint8_t val) {
 uint8_t mcp4017_read(void) {
     uint8_t val;
     I2CStart();
-    I2CSendByte(0x5F); 
+    I2CSendByte(0x5F);
     I2CWaitAck();
     val = I2CReceiveByte();
     I2CSendNotAck();

@@ -1,7 +1,7 @@
 /**
  * @file    lcd_app.h
- * @brief   LCD UI äÖÈ¾Ä£¿é (·ÀÉÁÆÁ»úÖÆ)
- * @note    ´¿Ïû·ÑÕß£ºËùÓÐÏÔÊ¾Êý¾Ý¾ùÀ´×Ô global_system.h¡£
+ * @brief   LCD UI æ¸²æŸ“æ¨¡å— (é˜²é—ªå±æœºåˆ¶)
+ * @note    çº¯æ¶ˆè´¹è€…ï¼šæ‰€æœ‰æ˜¾ç¤ºæ•°æ®å‡æ¥è‡ª global_system.hã€‚
  */
 #ifndef __LCD_APP_H
 #define __LCD_APP_H

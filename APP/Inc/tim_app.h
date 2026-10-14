@@ -1,6 +1,6 @@
 /**
  * @file    tim_app.h
- * @brief   ¶¨Ê±Æ÷ PWM ¶¯Ì¬Êä³ö¿ØÖÆÄ£¿é
+ * @brief   å®šæ—¶å™¨ PWM åŠ¨æ€è¾“å‡ºæ§åˆ¶æ¨¡å—
  */
 #ifndef __TIM_APP_H
 #define __TIM_APP_H
